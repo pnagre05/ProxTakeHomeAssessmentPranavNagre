@@ -53,9 +53,7 @@ graph TD
 
 Pre-loaded vs On Demand Data: The parts which pre-loaded as a batch include inventory and scheduled events. Given that new stock comes in on a schedule and not randomly,
 it would be appropriate for this information to be stored in batch memory. Along with this, scheduled events such as downtime and maintenance for the service would also be 
-pre-loaded data too. On-demand data is different, and information such as live stock (ie. how many the retailer has in possession at the moment) as well as the price of goods 
-are amongst the items that should be provided on demand. These two data strategies are depicted in the diagram above by isolating the Proactive Flow from the Reactive Flow. 
-The former represents pre-loaded information, whereas the latter represents On-Demand Data.
+pre-loaded data too. On-demand data is different, and information such as live stock (ie. how many the retailer has in possession at the moment) as well as the price of goods are amongst the items that should be provided on demand. These two data strategies are depicted in the diagram above by isolating the Proactive Flow from the Reactive Flow. The former represents pre-loaded information, whereas the latter represents On-Demand Data.
 
 Queueing / orchestration approach: In the diagram above, queueing is represented by the Message Broker node. The Message broker connects the API which the user interacts with
 to backend pools; this is particularly important in ensuring that longer and more arduous scraping requests do not "block" the user from conducting more searches. By using a 
@@ -64,3 +62,7 @@ it is so that if an identical search for the same retailer is already in the que
 which basically retries strategies should they fail (ie. if it fails with one retailer, it tries it with another).
 
 Secret and credential management strategy: In the diagram above, the secret and credential management strategy is represented by the Secret Manager.  It injects credentials into the worker pool at runtime - this is to make sure that nothing is written into the system and everything is fetched ONLY when it is needed. 
+
+Logging and monitoring approach: Each user search is given an ID when it reaches the API Gateway. This is then fed into the Message Broker, before which it goes to teh Worker Pools. It then extracts the ID and puts it in every log entry. The Monitoring and Logging node collects Operational Metrics like success rates and latency across the Gateway, Broker, and Workers. It uses the trace_id to provide end-to-end visibility, drastically reducing the team's manual debugging time and showing what went wrong and where it exactly it went wrong.
+
+Failure isolation strategy: The failure isolation strategy is designed to ensure that the instability or unavailability of a single grocery retailer does not result in a total system outage. By utilizing independent, containerized worker pools for each retailer, the architecture ensures that website structure changes or IP bans on one platform remain isolated, allowing other scraping flows to continue uninterrupted. To manage failure spikes and control cloud spend, the system implements a circuit breaker pattern; if a retailer consistently fails to return data, the system "trips" the circuit to temporarily halt expensive live scrapes and return a graceful, cached response to the user instead.
