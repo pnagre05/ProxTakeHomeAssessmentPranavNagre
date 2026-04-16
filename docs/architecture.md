@@ -63,4 +63,4 @@ Message Broker in particular, we can ensure that systems can run independently, 
 it is so that if an identical search for the same retailer is already in the queue, the new user's request "subscribes" to that existing job. Also in the diagram is the routing logic, 
 which basically retries strategies should they fail (ie. if it fails with one retailer, it tries it with another).
 
-Secret and credential management strategy: In the diagram above, the secret and credential management strategy is represented by 
+Secret and credential management strategy: In the diagram above, the secret and credential management strategy is represented by the Secret Manager.  It injects credentials into the worker pool at runtime - this is to make sure that nothing is written into the system and everything is fetched ONLY when it is needed. 
